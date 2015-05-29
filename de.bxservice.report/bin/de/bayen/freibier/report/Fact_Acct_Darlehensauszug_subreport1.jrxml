@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Fact_Acct_Darlehensauszug_subreport1" pageWidth="511" pageHeight="752" columnWidth="511" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="e9e432c8-035c-49ec-a490-3645f3a9afa7">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="RECORD_ID" class="java.math.BigDecimal">
+		<defaultValueExpression><![CDATA[new BigDecimal(1000016)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new BigDecimal(1000000)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTrx" class="java.util.Date" isForPrompting="false">
+		<defaultValueExpression><![CDATA[(new java.text.SimpleDateFormat("yyyy-MM-dd")).parse("2013-10-01",new java.text.ParsePosition(0))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTrxTo" class="java.util.Date" isForPrompting="false">
+		<defaultValueExpression><![CDATA[(new java.text.SimpleDateFormat("yyyy-MM-dd")).parse("2013-12-31",new java.text.ParsePosition(0))]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[WITH fa AS (
+SELECT
+  Fact_Acct.Fact_Acct_ID,
+  Fact_Acct.DateTrx,
+  Fact_Acct.DateAcct,
+  CASE WHEN Fact_Acct.AmtAcctDr = 0 THEN null ELSE Fact_Acct.AmtAcctDr END AS AmtAcctDr,
+  CASE WHEN Fact_Acct.AmtAcctCr = 0 THEN null ELSE Fact_Acct.AmtAcctCr END AS AmtAcctCr,
+  C_Invoice.DocumentNo,
+  COALESCE(C_InvoiceLine.Description, C_Invoice.Description, Fact_Acct.Description) AS Description,
+  sum(Fact_Acct.AmtAcctDr)
+    over (PARTITION BY Fact_Acct.UserElement1_ID
+      ORDER BY Fact_Acct.DateTrx, Fact_Acct.Fact_Acct_ID
+    ) -
+  sum(Fact_Acct.AmtAcctCr)
+    over (PARTITION BY Fact_Acct.UserElement1_ID
+      ORDER BY Fact_Acct.DateTrx, Fact_Acct.Fact_Acct_ID
+    ) AS saldo
+
+FROM Fact_Acct
+/* extract the loan account so we can filter for only this one */
+JOIN BAY_Config ON (BAY_Config.AD_Client_ID=$P{AD_Client_ID})
+JOIN C_Charge ON (C_Charge.C_Charge_ID = BAY_Config.ChargeCustomerLoan_ID)
+JOIN C_Charge_Acct ON (C_Charge.C_Charge_ID = C_Charge_Acct.C_Charge_ID)
+JOIN C_ValidCombination ON (C_ValidCombination.C_ValidCombination_ID = C_Charge_Acct.Ch_Expense_Acct)
+JOIN C_ElementValue ON (C_ValidCombination.Account_ID = C_ElementValue.C_ElementValue_ID)
+/* see if there are invoice documents and filter reversed documents */
+LEFT JOIN C_Invoice ON(Fact_Acct.AD_Table_ID = 318 /* C_Invoice */ AND C_Invoice.C_Invoice_ID = Fact_Acct.Record_ID)
+LEFT JOIN C_InvoiceLine ON(Fact_Acct.AD_Table_ID = 318 AND C_InvoiceLine.C_InvoiceLine_ID = Fact_Acct.Line_ID)
+WHERE
+  Fact_Acct.Account_ID = C_ElementValue.C_ElementValue_ID  /* only the loan account */
+  AND C_Invoice.Reversal_ID IS NULL /* filter reversed documents */
+  AND Fact_Acct.UserElement1_ID = $P{RECORD_ID}
+)
+
+SELECT
+  *
+FROM fa
+WHERE fa.DateTrx >= $P{DateTrx} AND fa.DateTrx <= $P{DateTrxTo}
+UNION (  /* erste Zeile für Saldoübertrag anfügen */
+SELECT
+  0 AS Fact_Acct_ID,  /* garantiert erste Zeile */
+  CAST($P{DateTrx} AS TIMESTAMP) - INTERVAL '1 DAY' AS DateTrx,
+  null AS DateAcct,
+  (select sum(AmtAcctDr) FROM fa WHERE fa.DateTrx < $P{DateTrx}) AS AmtAcctDr,
+  (select sum(AmtAcctCr) FROM fa WHERE fa.DateTrx < $P{DateTrx}) AS AmtAcctCr,
+  null AS DocumentNo,
+  'Saldenübertrag' AS Description,
+  (select sum(AmtAcctDr) FROM fa WHERE fa.DateTrx < $P{DateTrx}) -
+  (select sum(AmtAcctCr) FROM fa WHERE fa.DateTrx < $P{DateTrx}) AS saldo
+WHERE true /* (SELECT 1 FROM fa WHERE fa.DateTrx = $ P{DateTrx})!=1 */
+)
+UNION (  /* letzte Zeile für Saldenabschluss anfügen */
+SELECT
+  (1<<62) AS Fact_Acct_ID,  /* garantiert letzte Zeile */
+  $P{DateTrxTo} AS DateTrx,
+  null AS DateAcct,
+  null AS AmtAcctDr,
+  null AS AmtAcctCr,
+  null AS DocumentNo,
+  'Saldenabschluss' AS Description,
+  (select sum(AmtAcctDr) FROM fa WHERE fa.DateTrx < $P{DateTrxTo}) -
+  (select sum(AmtAcctCr) FROM fa WHERE fa.DateTrx < $P{DateTrxTo}) AS saldo
+WHERE (SELECT 1 FROM fa WHERE fa.DateTrx = $P{DateTrxTo}) IS NULL
+  AND FALSE  /* ausgeschaltet */
+)
+ORDER BY DateTrx, Fact_Acct_ID]]>
+	</queryString>
+	<field name="fact_acct_id" class="java.math.BigDecimal"/>
+	<field name="datetrx" class="java.sql.Timestamp"/>
+	<field name="dateacct" class="java.sql.Timestamp"/>
+	<field name="amtacctdr" class="java.math.BigDecimal"/>
+	<field name="amtacctcr" class="java.math.BigDecimal"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="saldo" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="24" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="2" width="60" height="20" uuid="c08f4640-499c-4556-acea-116644c2f218"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Datum]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="122" y="2" width="60" height="20" uuid="965cc98c-c2c5-4373-a50c-4bf37917fa5e"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[SOLL]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="182" y="2" width="60" height="20" uuid="0814c800-8626-4d19-8446-b1d3f8bc25e9"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[HABEN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="383" y="2" width="128" height="20" uuid="b4e89a43-5e0b-4514-9197-3d20163cf684"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Bezeichnung]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="242" y="2" width="60" height="20" uuid="97550a35-1a8d-43ce-803b-a7498e043e54"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Saldo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="61" y="2" width="60" height="20" forecolor="#999999" uuid="77f319c1-e0f5-4202-bcf6-42a6c3d11eea"/>
+				<text><![CDATA[BuchDat]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="302" y="2" width="75" height="20" uuid="fd97f215-0be1-4272-ba84-d900577e30d9"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Beleg]]></text>
+			</staticText>
+			<line>
+				<reportElement x="0" y="18" width="511" height="1" uuid="b288eb53-482a-4c1f-aa0c-a2c71a9b9250"/>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField pattern="dd.MM.yyyy">
+				<reportElement x="0" y="0" width="60" height="13" uuid="28b9610a-9729-44bb-944c-7550a4fd3bb0"/>
+				<textFieldExpression><![CDATA[$F{datetrx}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="122" y="0" width="60" height="13" uuid="b631ecc4-112e-4baf-9f75-411bf0db064c"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{amtacctdr}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="182" y="0" width="60" height="13" uuid="77907dee-09fe-4ad2-a92e-c3e061e95a91"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{amtacctcr}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="383" y="0" width="128" height="13" uuid="1d52ca06-45b7-4596-95db-e3ef82a22300"/>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement x="242" y="0" width="60" height="13" uuid="68607e16-29d3-45d9-9b11-d3ab2f9474a3"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{saldo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd.MM.yyyy" isBlankWhenNull="true">
+				<reportElement x="61" y="0" width="60" height="13" forecolor="#999999" uuid="2cca0ced-3a13-4b8c-b55c-92388850f021"/>
+				<textFieldExpression><![CDATA[$F{dateacct}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="302" y="0" width="75" height="13" uuid="fc37ceb4-4280-47eb-b321-5124530bd98a"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

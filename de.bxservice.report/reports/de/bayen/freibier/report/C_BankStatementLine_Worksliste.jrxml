@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Fact_Acct_Darlehensauszug" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="511" leftMargin="56" rightMargin="28" topMargin="28" bottomMargin="28" uuid="9965c3ae-1ad2-48d8-866b-758485d63be3">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="DateTrx" class="java.util.Date" isForPrompting="false">
+		<defaultValueExpression><![CDATA[(new java.text.SimpleDateFormat("yyyy-MM-dd")).parse("2014-01-01",new java.text.ParsePosition(0))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTrxTo" class="java.util.Date" isForPrompting="false">
+		<defaultValueExpression><![CDATA[(new java.text.SimpleDateFormat("yyyy-MM-dd")).parse("2014-02-01",new java.text.ParsePosition(0))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/home/tbayen/tmp/iReportCache/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ReportType" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["Kontoauszug nach Kategorien"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Language" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["de_DE"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Table_ID" class="java.math.BigDecimal" isForPrompting="false"/>
+	<parameter name="C_BankAccount_ID" class="java.math.BigDecimal" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new BigDecimal(1000002)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+C_Bank.Name AS BankName,
+COALESCE(AD_Table_Trl.Name, AD_Table.Name) AS TableName
+FROM C_BankAccount
+JOIN C_Bank USING(C_Bank_ID)
+/* if AD_Table_ID is set I read the table name */
+LEFT JOIN AD_Table ON(AD_Table.AD_Table_ID = $P{AD_Table_ID})
+LEFT JOIN AD_Table_Trl ON(AD_Table.AD_Table_ID = AD_Table_Trl.AD_Table_ID AND AD_Table_Trl.AD_Language = $P{AD_Language})
+/*ORDER BY C_BankStatementLine.StmtDate*/
+WHERE C_BankAccount_ID =  $P{C_BankAccount_ID}
+limit 100]]>
+	</queryString>
+	<field name="bankname" class="java.lang.String"/>
+	<field name="tablename" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="22">
+			<subreport>
+				<reportElement x="0" y="0" width="511" height="18" uuid="69b25232-5dbb-49b6-a6af-4eef5dbf38a6"/>
+				<subreportParameter name="ReportType">
+					<subreportParameterExpression><![CDATA[$P{ReportType}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="TableName">
+					<subreportParameterExpression><![CDATA[$F{tablename}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["Header_A4_portrait.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="26">
+			<textField>
+				<reportElement x="0" y="0" width="131" height="20" uuid="526a837b-c182-407e-b212-279e7df8237b"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bankname}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd.MM.YY">
+				<reportElement x="163" y="0" width="70" height="20" uuid="325c492d-0dc3-4007-b1ec-e6658d89bdec"/>
+				<textElement textAlignment="Right">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{DateTrx}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="233" y="0" width="25" height="20" uuid="fefd9660-0d89-4aa7-88bf-520d759fb5f5"/>
+				<textElement textAlignment="Justified">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[bis]]></text>
+			</staticText>
+			<textField pattern="dd.MM.YY">
+				<reportElement x="258" y="0" width="70" height="20" uuid="341023cb-855f-4389-ade2-64f5c8d693d7"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{DateTrxTo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="38" splitType="Stretch">
+			<break>
+				<reportElement x="0" y="37" width="100" height="1" uuid="8b3bf92c-32d3-4b3a-895b-5e35d6737adb"/>
+			</break>
+			<subreport>
+				<reportElement x="0" y="0" width="511" height="37" uuid="bc695a37-b162-4c5c-b23b-191454f8605c"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DateTrx">
+					<subreportParameterExpression><![CDATA[$P{DateTrx}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AD_Language">
+					<subreportParameterExpression><![CDATA[$P{AD_Language}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="C_BankAccount_ID">
+					<subreportParameterExpression><![CDATA[$P{C_BankAccount_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DateTrxTo">
+					<subreportParameterExpression><![CDATA[$P{DateTrxTo}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "C_BankStatementLine_Worksliste_subreport1.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="10">
+			<subreport>
+				<reportElement x="2" y="0" width="509" height="9" uuid="5a87efaf-5181-4401-8d13-fcfd0fbd0329"/>
+				<subreportParameter name="AD_User_Name">
+					<subreportParameterExpression><![CDATA["Thomas Bayen"]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["Footer_A4_portrait.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</pageFooter>
+</jasperReport>

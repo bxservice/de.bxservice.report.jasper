@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Header_A4_portrait" pageWidth="511" pageHeight="752" columnWidth="511" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="6fb40360-5cfd-40a6-9b4b-50d90731d32f">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="AD_Client_ID" class="java.math.BigDecimal" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1000000]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Org_ID" class="java.math.BigDecimal" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new BigDecimal(1000000)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ReportType" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="PAGE_NUMBER" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Language" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["de_DE"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="TableName" class="java.lang.String" isForPrompting="false"/>
+	<queryString>
+		<![CDATA[SELECT
+  AD_Org.Name,
+  Logo_ID
+  /* ,AD_Image.binarydata */
+FROM AD_Org
+JOIN AD_OrgInfo ON (AD_Org.AD_Org_ID = AD_OrgInfo.AD_Org_ID)
+/* LEFT JOIN AD_Image ON(AD_OrgInfo.Logo_ID = AD_Image.AD_Image_ID) */
+WHERE AD_Org.AD_Org_ID = $P{AD_Org_ID}]]>
+	</queryString>
+	<field name="name" class="java.lang.String"/>
+	<field name="logo_id" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="32" splitType="Stretch">
+			<rectangle>
+				<reportElement x="0" y="1" width="511" height="26" backcolor="#DCDCDC" uuid="8651c34e-e596-4b03-baf6-beac69fa7509"/>
+				<graphicElement>
+					<pen lineWidth="0.0"/>
+				</graphicElement>
+			</rectangle>
+			<image>
+				<reportElement x="3" y="3" width="36" height="21" backcolor="#CCCCCC" uuid="395dda47-9b39-4233-82b5-7444a0756dd9"/>
+				<imageExpression><![CDATA["AD_Image:"+($F{logo_id}).toString()]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="44" y="3" width="118" height="21" uuid="4e3a6285-071c-499d-8061-6c21cf84ce2c"/>
+				<textElement verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="2" y="27" width="509" height="1" uuid="3f4d135f-b4f9-436b-9596-0ac3d080503a"/>
+				<graphicElement>
+					<pen lineWidth="2.0"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="449" y="3" width="56" height="20" uuid="26514ba7-0a00-4a06-ad80-14670986de8d">
+					<printWhenExpression><![CDATA[$P{PAGE_NUMBER}!=null]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Seite "+$P{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="130" y="3" width="250" height="21" uuid="982f58f6-a38e-406c-ab45-982c869554f6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{ReportType} == null ?
+($P{TableName}==null?"Bericht":$P{TableName})
+: $P{ReportType}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>
