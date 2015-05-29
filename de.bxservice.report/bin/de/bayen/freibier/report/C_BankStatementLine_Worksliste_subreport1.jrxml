@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="C_BankStatementLine_Worksliste_subreport1" language="groovy" pageWidth="511" pageHeight="752" columnWidth="511" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="1c68ab13-8a41-4105-b410-b20ea661cd91">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="DateTrx" class="java.util.Date" isForPrompting="false">
+		<defaultValueExpression><![CDATA[(new java.text.SimpleDateFormat("yyyy-MM-dd")).parse("2014-01-01",new java.text.ParsePosition(0))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTrxTo" class="java.util.Date" isForPrompting="false">
+		<defaultValueExpression><![CDATA[(new java.text.SimpleDateFormat("yyyy-MM-dd")).parse("2014-02-01",new java.text.ParsePosition(0))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="C_BankAccount_ID" class="java.math.BigDecimal" isForPrompting="false">
+		<defaultValueExpression><![CDATA[new BigDecimal(1000002)]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+  C_BankStatementLine.DateAcct,
+  C_BankStatementLine.ValutaDate,
+  C_BankStatementLine.Description,
+  C_BankStatementLine.Memo,
+  C_BankStatementLine.Category,
+  C_BankStatementLine.TrxAmt,
+  COALESCE(C_BankStatementLine.EFTPayee, C_BPartner.Name) AS BPName
+FROM C_BankStatementLine
+JOIN C_BankStatement USING(C_BankStatement_ID)
+LEFT JOIN C_BPartner USING(C_BPartner_ID)
+WHERE
+  C_BankStatementLine.DateAcct >= $P{DateTrx}
+  AND C_BankStatementLine.DateAcct <= $P{DateTrxTo}
+  AND C_BankStatement.C_BankAccount_ID = $P{C_BankAccount_ID}
+--LIMIT 10
+ORDER BY C_BankStatementLine.Category,
+  C_BankStatement.C_BankAccount_ID, C_BankStatementLine.DateAcct, C_BankStatementLine.C_BankStatementLine_ID
+]]>
+	</queryString>
+	<field name="dateacct" class="java.sql.Timestamp"/>
+	<field name="valutadate" class="java.sql.Timestamp"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="memo" class="java.lang.String"/>
+	<field name="category" class="java.lang.String"/>
+	<field name="trxamt" class="java.math.BigDecimal"/>
+	<field name="bpname" class="java.lang.String"/>
+	<variable name="trxamt_1" class="java.math.BigDecimal" resetType="Group" resetGroup="Category" calculation="Sum">
+		<variableExpression><![CDATA[$F{trxamt}]]></variableExpression>
+	</variable>
+	<group name="Category">
+		<groupExpression><![CDATA[$F{category}]]></groupExpression>
+		<groupFooter>
+			<band height="27">
+				<textField isBlankWhenNull="true">
+					<reportElement x="421" y="3" width="10" height="12" uuid="68db0d88-1479-412e-b388-87cce65ab56f"/>
+					<textFieldExpression><![CDATA[$F{category}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement x="431" y="3" width="80" height="12" uuid="04a89afa-bfd7-4640-a987-d3b42636255c"/>
+					<textElement textAlignment="Right"/>
+					<textFieldExpression><![CDATA[$V{trxamt_1}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="411" y="0" width="100" height="1" uuid="a1d4be0d-a539-4bc2-952c-0f77d7934e34"/>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="14" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="45" height="13" uuid="98e7a563-0047-4238-b558-4fecdd4b7dba"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Datum]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="48" y="0" width="45" height="13" forecolor="#CCCCCC" uuid="48a223f9-f126-4b5e-87ef-d2038f7b8d6d"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Valuta]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="200" y="0" width="100" height="13" uuid="4b561c23-e0ce-461c-90b5-17b2548e9267"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Text]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="431" y="0" width="80" height="13" uuid="8baa9176-896e-452c-960a-0c2ba737c1d5"/>
+				<textElement textAlignment="Right">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Betrag]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="97" y="0" width="49" height="13" uuid="5482bb34-c633-4a7a-abf5-997a062a3cbf"/>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Name]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="14" splitType="Stretch">
+			<textField pattern="dd.MM.YY">
+				<reportElement x="48" y="0" width="45" height="12" forecolor="#CCCCCC" uuid="5f395c81-9961-4226-b477-722ad26c70ac"/>
+				<textFieldExpression><![CDATA[$F{valutadate}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="200" y="0" width="221" height="12" uuid="c9713cb1-d21a-442f-a221-f4163a872522"/>
+				<textFieldExpression><![CDATA[$F{memo}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement x="431" y="0" width="80" height="12" uuid="19be0585-3814-4506-a313-db850b4d9137"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{trxamt}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd.MM.YY">
+				<reportElement x="0" y="0" width="45" height="12" uuid="48c36e72-fcf0-4249-a2e5-69fb4aef59c5"/>
+				<textFieldExpression><![CDATA[$F{dateacct}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="97" y="0" width="99" height="12" uuid="b35a19b1-b258-46d8-b923-0c323a72bc35"/>
+				<textFieldExpression><![CDATA[$F{bpname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="421" y="0" width="10" height="12" uuid="368cb5bc-16e7-4318-9c72-01781ba60e8e"/>
+				<textFieldExpression><![CDATA[$F{category}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="25" splitType="Stretch"/>
+	</columnFooter>
+</jasperReport>

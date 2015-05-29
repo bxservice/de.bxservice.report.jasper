@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Footer_A4_portrait" pageWidth="511" pageHeight="752" columnWidth="511" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="37cbb9fa-a290-4f05-86d4-a3105bdd40b4">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="AD_User_Name" class="java.lang.String" isForPrompting="false"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT 1]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="9" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="100" height="9" uuid="0d534716-887a-48bf-ad69-2fc7690cd029"/>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{AD_User_Name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEE, d. MMM yyyy HH:mm:ss" isBlankWhenNull="true">
+				<reportElement x="411" y="0" width="100" height="9" uuid="37cd5564-66a0-473e-be0d-2a653a61a930"/>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="-1" width="511" height="1" uuid="eb2152ef-8182-452b-8e59-180eaf5a84fb"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+		</band>
+	</title>
+</jasperReport>

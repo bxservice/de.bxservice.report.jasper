@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Fact_Acct_Darlehensauszug" pageWidth="511" pageHeight="792" columnWidth="511" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="4d5828de-7af0-4525-ab3a-7a1388bb0bdb">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="RECORD_ID" class="java.math.BigDecimal" isForPrompting="false">
+		<parameterDescription><![CDATA[ausgewählter Datensatz]]></parameterDescription>
+		<defaultValueExpression><![CDATA[new BigDecimal(1000016)]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTrx" class="java.util.Date" isForPrompting="false">
+		<defaultValueExpression><![CDATA[(new java.text.SimpleDateFormat("yyyy-MM-dd")).parse("2013-10-01",new java.text.ParsePosition(0))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DateTrxTo" class="java.util.Date" isForPrompting="false">
+		<defaultValueExpression><![CDATA[(new java.text.SimpleDateFormat("yyyy-MM-dd")).parse("2013-12-31",new java.text.ParsePosition(0))]]></defaultValueExpression>
+	</parameter>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/home/tbayen/Projekte/iDempiere/JasperReports/Reporte/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Client_ID" class="java.lang.Integer" isForPrompting="false">
+		<defaultValueExpression><![CDATA[1000000]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_Language" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["de_DE"]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+  BAY_Contract.BAY_Contract_ID,
+  BAY_Contract.Value AS con_value,
+  BAY_Contract.Name AS con_name,
+  BAY_Contract.Description AS con_description,
+  BAY_Contract.InvoiceFrequency,
+  COALESCE(AD_Ref_List_Trl.Name, AD_Ref_List.Name) AS InvoiceFrequency_Name,
+  BAY_Contract.InterestPercent,
+  C_BPartner.Name AS bp_name,
+  C_BPartner.Value AS bp_value,
+(  /* saldo_begin */
+SELECT
+  sum(Fact_Acct.AmtAcctDr) - sum(Fact_Acct.AmtAcctCr) AS saldo
+FROM Fact_Acct
+/* extract the loan account so we can filter for only this one */
+JOIN BAY_Config ON (BAY_Config.AD_Client_ID=$P{AD_Client_ID})
+JOIN C_Charge ON (C_Charge.C_Charge_ID = BAY_Config.ChargeCustomerLoan_ID)
+JOIN C_Charge_Acct ON (C_Charge.C_Charge_ID = C_Charge_Acct.C_Charge_ID)
+JOIN C_ValidCombination ON (C_ValidCombination.C_ValidCombination_ID = C_Charge_Acct.Ch_Expense_Acct)
+JOIN C_ElementValue ON (C_ValidCombination.Account_ID = C_ElementValue.C_ElementValue_ID)
+/* see if there are invoice documents and filter reversed documents */
+LEFT JOIN C_Invoice ON(Fact_Acct.AD_Table_ID = 318 /* C_Invoice */ AND C_Invoice.C_Invoice_ID = Fact_Acct.Record_ID)
+WHERE
+  Fact_Acct.Account_ID = C_ElementValue.C_ElementValue_ID  /* only the loan account */
+  AND C_Invoice.Reversal_ID IS NULL /* filter reversed documents */
+  AND Fact_Acct.UserElement1_ID = $P{RECORD_ID}
+  AND Fact_Acct.DateTrx < $P{DateTrx}
+) AS saldo_begin,
+
+(  /* saldo_end */
+SELECT
+  sum(Fact_Acct.AmtAcctDr) - sum(Fact_Acct.AmtAcctCr) AS saldo
+FROM Fact_Acct
+/* extract the loan account so we can filter for only this one */
+JOIN BAY_Config ON (BAY_Config.AD_Client_ID=$P{AD_Client_ID})
+JOIN C_Charge ON (C_Charge.C_Charge_ID = BAY_Config.ChargeCustomerLoan_ID)
+JOIN C_Charge_Acct ON (C_Charge.C_Charge_ID = C_Charge_Acct.C_Charge_ID)
+JOIN C_ValidCombination ON (C_ValidCombination.C_ValidCombination_ID = C_Charge_Acct.Ch_Expense_Acct)
+JOIN C_ElementValue ON (C_ValidCombination.Account_ID = C_ElementValue.C_ElementValue_ID)
+/* see if there are invoice documents and filter reversed documents */
+LEFT JOIN C_Invoice ON(Fact_Acct.AD_Table_ID = 318 /* C_Invoice */ AND C_Invoice.C_Invoice_ID = Fact_Acct.Record_ID)
+WHERE
+  Fact_Acct.Account_ID = C_ElementValue.C_ElementValue_ID  /* only the loan account */
+  AND C_Invoice.Reversal_ID IS NULL /* filter reversed documents */
+  AND Fact_Acct.UserElement1_ID = $P{RECORD_ID}
+  AND Fact_Acct.DateTrx <= $P{DateTrxTo}
+) AS saldo_end
+
+FROM BAY_Contract
+JOIN C_BPartner ON(C_BPartner.C_BPartner_ID = BAY_Contract.C_BPartner_ID)
+/* reference for InvoiceFrequency */
+LEFT JOIN AD_Ref_List ON(AD_Ref_List.AD_Reference_ID=196 AND AD_Ref_List.Value=BAY_Contract.InvoiceFrequency)
+LEFT JOIN AD_Ref_List_Trl ON(AD_Ref_List.AD_Ref_List_ID = AD_Ref_List_Trl.AD_Ref_List_ID AND AD_Ref_List_Trl.AD_Language = $P{AD_Language})
+WHERE BAY_Contract_ID = $P{RECORD_ID}
+]]>
+	</queryString>
+	<field name="bay_contract_id" class="java.math.BigDecimal"/>
+	<field name="con_value" class="java.lang.String"/>
+	<field name="con_name" class="java.lang.String"/>
+	<field name="con_description" class="java.lang.String"/>
+	<field name="invoicefrequency" class="java.lang.String"/>
+	<field name="invoicefrequency_name" class="java.lang.String"/>
+	<field name="interestpercent" class="java.math.BigDecimal"/>
+	<field name="bp_name" class="java.lang.String"/>
+	<field name="bp_value" class="java.lang.String"/>
+	<field name="saldo_begin" class="java.math.BigDecimal"/>
+	<field name="saldo_end" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="149" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="64" height="15" uuid="7d24d845-df7f-42fd-bca8-00d159078118"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{con_value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="79" y="0" width="200" height="13" uuid="f8fedaf0-f465-4f2e-8703-c3109301f1bc"/>
+				<textFieldExpression><![CDATA[$F{con_name}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="447" y="0" width="64" height="13" uuid="de27f827-d072-488e-a279-f8f8d63f3ed3"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{invoicefrequency_name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="###0.00 &apos;%&apos;" isBlankWhenNull="true">
+				<reportElement x="447" y="17" width="64" height="13" uuid="59d2f717-81d8-444c-9c48-39b1c7caf0b1"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{interestpercent}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="79" y="17" width="200" height="13" uuid="cea3fce9-c720-4fac-ade7-2ba477be9097"/>
+				<textFieldExpression><![CDATA[$F{bp_name}+" ("+$F{bp_value}+")"]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement positionType="Float" x="0" y="85" width="511" height="41" uuid="258d6abb-2959-403f-a429-eafa21a00984"/>
+				<subreportParameter name="SUBREPORT_DIR">
+					<subreportParameterExpression><![CDATA[$P{SUBREPORT_DIR}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="RECORD_ID">
+					<subreportParameterExpression><![CDATA[$P{RECORD_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DateTrx">
+					<subreportParameterExpression><![CDATA[$P{DateTrx}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AD_Language">
+					<subreportParameterExpression><![CDATA[$P{AD_Language}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="DateTrxTo">
+					<subreportParameterExpression><![CDATA[$P{DateTrxTo}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "Fact_Acct_Darlehensauszug_subreport1.jasper"]]></subreportExpression>
+			</subreport>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="34" width="511" height="13" isRemoveLineWhenBlank="true" forecolor="#999999" uuid="dcc6ac8a-3cdc-47c2-a755-3c8187e275fd"/>
+				<textFieldExpression><![CDATA[$F{con_description}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="242" y="134" width="60" height="13" uuid="cd3e110f-f07f-46ac-adf6-e38404077c99"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[$F{saldo_end}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" x="383" y="134" width="76" height="13" uuid="2d1fa014-8622-4e56-bf18-f5f84a72ed9e"/>
+				<text><![CDATA[Endsaldo]]></text>
+			</staticText>
+			<line>
+				<reportElement positionType="Float" x="0" y="81" width="511" height="1" uuid="2542c2bd-ac5a-4cc7-b77d-9464184445cf"/>
+			</line>
+			<line>
+				<reportElement positionType="Float" x="0" y="130" width="511" height="1" uuid="6f3e2930-31a6-4dd6-b47f-744a553e595e"/>
+			</line>
+			<textField>
+				<reportElement positionType="Float" x="0" y="63" width="511" height="13" uuid="eec04615-5773-4a04-951f-cd31b9145054"/>
+				<textFieldExpression><![CDATA["Auszug vom "
++(new SimpleDateFormat("dd.MM.yyyy").format($P{DateTrx}))
++" bis "
++(new SimpleDateFormat("dd.MM.yyyy").format($P{DateTrxTo}))
+]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd.MM.yyyy" isBlankWhenNull="true">
+				<reportElement positionType="Float" x="0" y="134" width="60" height="13" uuid="a1bde12b-e294-4422-90b9-cffe43f39342"/>
+				<textFieldExpression><![CDATA[$P{DateTrxTo}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>
