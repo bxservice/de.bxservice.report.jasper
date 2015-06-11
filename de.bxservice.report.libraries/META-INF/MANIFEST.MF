@@ -1,15 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: JasperReports Libraries
+Bundle-Name: Libraries
 Bundle-SymbolicName: de.bayen.freibier.report.libraries;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Export-Package: net.sf.jasperreports.engine,
- net.sf.jasperreports.engine.base,
- net.sf.jasperreports.engine.export,
- net.sf.jasperreports.engine.fill,
- net.sf.jasperreports.engine.util,
- net.sf.jasperreports.export,
- net.sf.jasperreports.view
 Bundle-ClassPath: lib/ant-1.7.1.jar,
  lib/antlr-2.7.5.jar,
  lib/barbecue-1.5-beta1.jar,
@@ -72,6 +65,13 @@ Bundle-ClassPath: lib/ant-1.7.1.jar,
  lib/xercesImpl-2.10.0.jar,
  lib/xml-apis-ext.jar,
  lib/xml-apis.jar,
- lib/xmlbeans-2.5.0.jar,
- .
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+ .,
+ lib/xmlbeans-2.5.0.jar
+Export-Package: net.sf.jasperreports.engine,
+ net.sf.jasperreports.engine.base,
+ net.sf.jasperreports.engine.export,
+ net.sf.jasperreports.engine.fill,
+ net.sf.jasperreports.engine.util,
+ net.sf.jasperreports.export,
+ net.sf.jasperreports.view
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7

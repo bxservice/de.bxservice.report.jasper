@@ -3,6 +3,7 @@
 	<name>de.bayen.freibier.report</name>
 	<comment></comment>
 	<projects>
+		<project>de.bxservice.report.libraries</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
