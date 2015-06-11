@@ -2,10 +2,11 @@ package de.bayen.freibier.report;
 
 
 import org.adempiere.base.IProcessFactory;
-import org.adempiere.util.ProcessUtil;
 import org.compiere.process.ProcessCall;
 
 public class ProcessFactory implements IProcessFactory {
+	
+	public static final String BAYEN_JASPER_STARTER_CLASS = "de.bayen.freibier.report.ReportStarter";
 
 	@Override
 	public ProcessCall newProcessInstance(String className) {
@@ -15,7 +16,7 @@ public class ProcessFactory implements IProcessFactory {
 		 * Special code to use this as an replacement for the standard
 		 * JasperReports starter class
 		 */
-		if(ProcessUtil.JASPER_STARTER_CLASS.equals(className))
+		if(BAYEN_JASPER_STARTER_CLASS.equals(className))
 			return new ReportStarter();
 		return null;
 	}
