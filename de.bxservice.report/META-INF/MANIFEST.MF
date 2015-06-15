@@ -1,13 +1,14 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Report
-Bundle-SymbolicName: de.bayen.freibier.report;singleton:=true
+Bundle-SymbolicName: de.bxservice.report;singleton:=true
 Bundle-Version: 1.0.1.qualifier
 Bundle-ClassPath: .
 Export-Package: de.bayen.freibier.report,
  org.adempiere.report.jasper
 Require-Bundle: org.adempiere.base;bundle-version="2.0.0",
- de.bayen.freibier.report.libraries;bundle-version="1.0.0"
+ de.bxservice.report.libraries;bundle-version="1.0.0",
+ org.adempiere.report.jasper;bundle-version="3.0.0"
 Service-Component: OSGI-INF/processfactory.xml
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

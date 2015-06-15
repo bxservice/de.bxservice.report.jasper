@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Libraries
-Bundle-SymbolicName: de.bayen.freibier.report.libraries;singleton:=true
+Bundle-SymbolicName: de.bxservice.report.libraries;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: lib/ant-1.7.1.jar,
  lib/antlr-2.7.5.jar,
@@ -36,8 +36,6 @@ Bundle-ClassPath: lib/ant-1.7.1.jar,
  lib/jackson-annotations-2.1.4.jar,
  lib/jackson-core-2.1.4.jar,
  lib/jackson-databind-2.1.4.jar,
- lib/jasperreports-5.6.0.jar,
- lib/jasperreports-fonts-5.6.0.jar,
  lib/jaxen-1.1.1.jar,
  lib/jcommon-1.0.15.jar,
  lib/jdt-compiler-3.1.1.jar,
@@ -75,3 +73,4 @@ Export-Package: net.sf.jasperreports.engine,
  net.sf.jasperreports.export,
  net.sf.jasperreports.view
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.adempiere.report.jasper.library;bundle-version="3.0.0"

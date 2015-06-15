@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>de.bayen.freibier.report</name>
+	<name>de.bxservice.report</name>
 	<comment></comment>
 	<projects>
 		<project>de.bxservice.report.libraries</project>
