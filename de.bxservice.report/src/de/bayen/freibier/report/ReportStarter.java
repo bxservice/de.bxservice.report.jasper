@@ -287,8 +287,9 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 					+ " WHERE AD_PInstance_ID=" + pi.getAD_PInstance_ID();
 			DB.executeUpdateEx(sql, new Object[] { result, errMsg }, trxName);
 		}
-
-		return true;
+		
+		//When succesfull return false to avoid the report process to run twice
+		return false;
     } //startJasperProcess
 
 
