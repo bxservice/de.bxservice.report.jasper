@@ -1,4 +1,4 @@
-package de.bayen.freibier.report;
+package de.bxservice.report;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
