@@ -289,7 +289,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 		}
 		
 		//When succesfull return false to avoid the report process to run twice
-		return false;
+		return true;
     } //startJasperProcess
 
 
