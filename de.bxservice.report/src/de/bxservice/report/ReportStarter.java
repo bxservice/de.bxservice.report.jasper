@@ -17,6 +17,7 @@ import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -271,8 +272,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 		} catch (JRException e) {
             log.severe("ReportStarter.startProcess: Can not run report - "+ e.getMessage());
         } catch (Exception e) {
-			throw new AdempiereException("error while creating jasper report",
-					e);
+			throw new AdempiereException("error while creating jasper report", e);
 		} finally {
 			try {
 				conn.close();
@@ -743,13 +743,25 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 		if (para == null)
 			return params;
 		for (int i = 0; i < para.length; i++) {
-			params.put(para[i].getParameterName(), para[i].getParameter());
-
-			if (para[i].getParameter_To() != null) {
-				params.put(para[i].getParameterName() + "To", para[i].getParameter_To());
-				// for compatibility:
-				params.put(para[i].getParameterName() + "1", para[i].getParameter());
-				params.put(para[i].getParameterName() + "2", para[i].getParameter_To());
+			if (para[i].getParameter_To() == null) {
+				if (para[i].getParameterName().endsWith("_ID") && para[i].getParameter() instanceof BigDecimal) {
+					params.put(para[i].getParameterName(), ((BigDecimal)para[i].getParameter()).intValue());
+				} else {
+					params.put(para[i].getParameterName(), para[i].getParameter());
+				}
+			} else {
+				// range - from
+				if (para[i].getParameterName().endsWith("_ID") && para[i].getParameter() != null && para[i].getParameter() instanceof BigDecimal) {
+	                params.put( para[i].getParameterName()+"1", ((BigDecimal)para[i].getParameter()).intValue());
+				} else {
+	                params.put( para[i].getParameterName()+"1", para[i].getParameter());
+				}
+				// range - to
+				if (para[i].getParameterName().endsWith("_ID") && para[i].getParameter_To() instanceof BigDecimal) {
+	                params.put( para[i].getParameterName()+"2", ((BigDecimal)para[i].getParameter_To()).intValue());
+				} else {
+	                params.put( para[i].getParameterName()+"2", para[i].getParameter_To());
+				}
 			}
 		}
 		return params;
