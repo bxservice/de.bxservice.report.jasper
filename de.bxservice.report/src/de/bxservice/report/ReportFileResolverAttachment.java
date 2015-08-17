@@ -43,7 +43,9 @@ public class ReportFileResolverAttachment extends ReportFileResolver {
 	protected InputStream loadOriginalFileAsStream(String path, String name,
 			String suffix) {
 		String fullSuffix = suffix != null ? "." + suffix : "";
-		String fullPath = (path!=null&&path.length()>0? path+ "/":"") + name + fullSuffix;
+		if(path.equals("./"))
+			path = "";
+		String fullPath = ( path != null && path.length()>0 ? path + "/":"") + name + fullSuffix;
 		if( record.getAttachment() != null && record.getAttachment().getEntries()!= null ){
 			MAttachmentEntry[] entries = record.getAttachment().getEntries();
 			for (MAttachmentEntry entry : entries) {

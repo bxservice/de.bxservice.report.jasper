@@ -77,6 +77,8 @@ public class ReportFileResolverServices extends ReportFileResolver {
 	@Override
 	protected InputStream loadOriginalFileAsStream(String path, String name,
 			String suffix) {
+		if(path.equals("./"))
+			path = "";
 		List<ReportFileResolver> resolverList = getFileResolverList(path);
 		for (ReportFileResolver reportFileResolver : resolverList) {
 			InputStream strm = reportFileResolver.loadOriginalFileAsStream(path, name, suffix);

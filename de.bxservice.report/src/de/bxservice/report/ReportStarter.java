@@ -15,6 +15,7 @@ package de.bxservice.report;
 
 import java.awt.print.PrinterJob;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.PropertyResourceBundle;
 
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
@@ -141,6 +143,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 	private boolean      isDirectPrint;
 	private String       jasperFilepath = null;
 	private FileResolver m_fileResolver;
+	private Language     currLang;
 	
 	private static CLogger log = CLogger.getCLogger(ReportStarter.class);
 
@@ -231,6 +234,21 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 		Connection conn = DB.getConnectionRO();
 		try {
 			jasperReport = (JasperReport) JRLoader.loadObjectFromFile(jasperFile.getAbsolutePath());
+			
+			String bundleName = jasperReport.getResourceBundle();
+			if( bundleName == null )
+				bundleName = jasperReport.getName();
+			File propertiesFile = getPropertiesFilePath(bundleName, currLang);
+			if ( propertiesFile != null ) {
+				try {
+					PropertyResourceBundle res = new PropertyResourceBundle( new FileInputStream(propertiesFile) );
+					params.put("RESOURCE", res);
+					params.put(JRParameter.REPORT_RESOURCE_BUNDLE, res);
+				} catch (IOException e) {
+					;
+				}
+			}
+
 			createVirtualizer(params);
 			LocalJasperReportsContext jasperContext = createJasperContext();
 
@@ -292,6 +310,21 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 		return true;
     } //startJasperProcess
 
+
+	private File getPropertiesFilePath(String bundleName, Language currLang) {
+		String resname = bundleName+"_"+currLang.getLocale().getLanguage()+"_"+currLang.getLocale().getCountry()+".properties";
+		File originalFileStream = ((ReportFileResolver) m_fileResolver).resolveFile(resname);
+		if( originalFileStream == null ){
+			resname = bundleName+"_"+currLang.getLocale().getLanguage()+".properties";
+			originalFileStream = ((ReportFileResolver) m_fileResolver).resolveFile(resname);
+			if( originalFileStream == null ){
+				resname = bundleName+".properties";
+				originalFileStream = ((ReportFileResolver) m_fileResolver).resolveFile(resname);				
+			}
+		}
+
+		return originalFileStream;
+	}
 
 	/**
 	 * Creates a report and direct sends it to the appropriate printer.
@@ -516,7 +549,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 		params.put(JCTX_AD_ROLE_ID, new Integer(Env.getAD_Role_ID(ctx)));
 		params.put(JCTX_AD_USER_ID, new Integer(Env.getAD_User_ID(ctx)));
 
-		Language currLang = initPrinterSettings(ctx, parameterPI);
+		currLang = initPrinterSettings(ctx, parameterPI);
 		// Locale object (JasperReports standard e.g. to access ResourceBundles)
 		params.put(JRParameter.REPORT_LOCALE, currLang.getLocale());
 		// String, e.g. "de_DE" or "en_US"
