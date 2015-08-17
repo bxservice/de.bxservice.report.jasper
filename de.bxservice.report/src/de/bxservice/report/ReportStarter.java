@@ -238,7 +238,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 			String bundleName = jasperReport.getResourceBundle();
 			if( bundleName == null )
 				bundleName = jasperReport.getName();
-			File propertiesFile = getPropertiesFilePath(bundleName, currLang);
+			File propertiesFile = getPropertiesFile(bundleName, currLang);
 			if ( propertiesFile != null ) {
 				try {
 					PropertyResourceBundle res = new PropertyResourceBundle( new FileInputStream(propertiesFile) );
@@ -311,7 +311,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
     } //startJasperProcess
 
 
-	private File getPropertiesFilePath(String bundleName, Language currLang) {
+	private File getPropertiesFile(String bundleName, Language currLang) {
 		String resname = bundleName+"_"+currLang.getLocale().getLanguage()+"_"+currLang.getLocale().getCountry()+".properties";
 		File originalFileStream = ((ReportFileResolver) m_fileResolver).resolveFile(resname);
 		if( originalFileStream == null ){
