@@ -68,6 +68,8 @@ public class ReportFileResolverFileSystem extends ReportFileResolver {
 	protected InputStream loadOriginalFileAsStream(String path, String name, String suffix) {
 		String fullSuffix = suffix != null ? "." + suffix : "";
 		String fullPath;
+		if(path.equals("./"))
+			path = "";
 		if( path == null || path.isEmpty() )
 			fullPath= REPORT_HOME + "/" + name + fullSuffix;
 		else

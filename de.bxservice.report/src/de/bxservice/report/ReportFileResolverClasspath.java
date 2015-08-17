@@ -55,6 +55,8 @@ public class ReportFileResolverClasspath extends ReportFileResolver {
 
 	protected InputStream loadOriginalFileAsStream(String path, String name, String suffix) {
 		String fullSuffix = suffix != null ? "." + suffix : "";
+		if(path.equals("./"))
+			path = "";
 		String fullPath = getDefaultResourcepath() + name + fullSuffix;
 		ClassLoader cl = getClass().getClassLoader();
 		//ClassLoader cl2 = FrameworkUtil.getBundle(getClass()).getBundleContext().getBundle().adapt(BundleWiring.class).getClassLoader();
