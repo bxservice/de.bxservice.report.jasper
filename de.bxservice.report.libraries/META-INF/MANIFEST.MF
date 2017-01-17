@@ -73,4 +73,4 @@ Export-Package: net.sf.jasperreports.engine,
  net.sf.jasperreports.export,
  net.sf.jasperreports.view
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Require-Bundle: org.adempiere.report.jasper.library;bundle-version="3.0.0"
+Require-Bundle: org.adempiere.report.jasper.library;bundle-version="0.0.0"
