@@ -9,7 +9,7 @@ Require-Bundle: org.adempiere.base;bundle-version="2.0.0",
  de.bxservice.report.libraries;bundle-version="1.0.0",
  org.adempiere.report.jasper;bundle-version="3.0.0"
 Service-Component: OSGI-INF/processfactory.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.apache.xml.resolver.apps,
  org.osgi.framework;version="1.6.0",
