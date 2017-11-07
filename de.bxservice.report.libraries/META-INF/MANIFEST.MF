@@ -29,7 +29,7 @@ Bundle-ClassPath: lib/ant-1.7.1.jar,
  lib/commons-javaflow-20060411.jar,
  lib/commons-logging-1.1.1.jar,
  lib/dom4j-1.6.1.jar,
- lib/groovy-all-2.0.1.jar,
+ lib/groovy-all-2.4.12.jar,
  lib/hibernate3.jar,
  lib/hsqldb-1.8.0-10.jar,
  lib/iText-2.1.7.js2.jar,
@@ -65,12 +65,4 @@ Bundle-ClassPath: lib/ant-1.7.1.jar,
  lib/xml-apis.jar,
  .,
  lib/xmlbeans-2.5.0.jar
-Export-Package: net.sf.jasperreports.engine,
- net.sf.jasperreports.engine.base,
- net.sf.jasperreports.engine.export,
- net.sf.jasperreports.engine.fill,
- net.sf.jasperreports.engine.util,
- net.sf.jasperreports.export,
- net.sf.jasperreports.view
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: org.adempiere.report.jasper.library;bundle-version="0.0.0"
