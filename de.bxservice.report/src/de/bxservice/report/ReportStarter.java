@@ -34,6 +34,36 @@ import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
 import javax.print.attribute.standard.JobName;
 
+import org.adempiere.base.Service;
+import org.adempiere.exceptions.AdempiereException;
+import org.adempiere.exceptions.DBException;
+import org.adempiere.report.jasper.JRViewerProvider;
+import org.adempiere.util.IProcessUI;
+import org.compiere.model.MClient;
+import org.compiere.model.MPInstance;
+import org.compiere.model.MProcess;
+import org.compiere.model.MRole;
+import org.compiere.model.MSysConfig;
+import org.compiere.model.MUser;
+import org.compiere.model.PrintInfo;
+import org.compiere.model.X_AD_PInstance_Para;
+import org.compiere.print.ArchiveEngine;
+import org.compiere.print.MPrintFormat;
+import org.compiere.print.PrintUtil;
+import org.compiere.print.ServerReportCtl;
+import org.compiere.process.ClientProcess;
+import org.compiere.process.ProcessCall;
+import org.compiere.process.ProcessInfo;
+import org.compiere.process.ProcessInfoParameter;
+import org.compiere.util.CLogger;
+import org.compiere.util.CPreparedStatement;
+import org.compiere.util.DB;
+import org.compiere.util.Env;
+import org.compiere.util.Ini;
+import org.compiere.util.Language;
+import org.compiere.util.Trx;
+import org.compiere.util.Util;
+
 import net.sf.jasperreports.engine.DefaultJasperReportsContext;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRParameter;
@@ -68,36 +98,7 @@ import net.sf.jasperreports.export.SimplePrintServiceExporterConfiguration;
 import net.sf.jasperreports.export.SimpleTextExporterConfiguration;
 import net.sf.jasperreports.export.SimpleWriterExporterOutput;
 import net.sf.jasperreports.export.SimpleXlsExporterConfiguration;
-
-import org.adempiere.base.Service;
-import org.adempiere.exceptions.AdempiereException;
-import org.adempiere.exceptions.DBException;
-import org.adempiere.report.jasper.JRViewerProvider;
-import org.adempiere.util.IProcessUI;
-import org.compiere.model.MClient;
-import org.compiere.model.MPInstance;
-import org.compiere.model.MProcess;
-import org.compiere.model.MRole;
-import org.compiere.model.MSysConfig;
-import org.compiere.model.MUser;
-import org.compiere.model.PrintInfo;
-import org.compiere.model.X_AD_PInstance_Para;
-import org.compiere.print.ArchiveEngine;
-import org.compiere.print.MPrintFormat;
-import org.compiere.print.PrintUtil;
-import org.compiere.print.ServerReportCtl;
-import org.compiere.process.ClientProcess;
-import org.compiere.process.ProcessCall;
-import org.compiere.process.ProcessInfo;
-import org.compiere.process.ProcessInfoParameter;
-import org.compiere.util.CLogger;
-import org.compiere.util.CPreparedStatement;
-import org.compiere.util.DB;
-import org.compiere.util.Env;
-import org.compiere.util.Ini;
-import org.compiere.util.Language;
-import org.compiere.util.Trx;
-import org.compiere.util.Util;
+import net.sf.jasperreports.export.SimpleXmlExporterOutput;
 
 /**
  * Starter Class to do a report using the JasperReports library. This starter is
@@ -419,7 +420,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 				JRXmlExporter export = new JRXmlExporter(jasperContext);
 				SimpleExporterConfiguration config = new SimpleExporterConfiguration();
 				export.setConfiguration(config);
-				export.setExporterOutput(new SimpleWriterExporterOutput(strm));
+				export.setExporterOutput(new SimpleXmlExporterOutput(strm));
 				exporter = export;
 			} else if (ext.equals("csv") || ext.equals("ssv")) {
 				JRCsvExporter export = new JRCsvExporter(jasperContext);
