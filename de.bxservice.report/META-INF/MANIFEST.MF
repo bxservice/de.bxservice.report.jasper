@@ -9,7 +9,6 @@ Require-Bundle: de.bxservice.report.libraries;bundle-version="1.0.0",
  org.adempiere.base;bundle-version="2.0.0",
  org.adempiere.report.jasper;bundle-version="5.1.0"
 Service-Component: OSGI-INF/processfactory.xml
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: net.sf.jasperreports.ant,
  net.sf.jasperreports.charts,
