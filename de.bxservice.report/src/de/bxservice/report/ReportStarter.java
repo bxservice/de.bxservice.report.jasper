@@ -550,7 +550,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 		params.put(JCTX_AD_ROLE_ID, Env.getAD_Role_ID(ctx));
 		params.put(JCTX_AD_USER_ID, Env.getAD_User_ID(ctx));
 
-		currLang = initPrinterSettings(ctx, parameterPI);
+		currLang = initPrinterSettings(ctx, parameterPI, parameterP);
 		// Locale object (JasperReports standard e.g. to access ResourceBundles)
 		params.put(JRParameter.REPORT_LOCALE, currLang.getLocale());
 		// String, e.g. "de_DE" or "en_US"
@@ -660,13 +660,19 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 	/**
 	 * initializes the printer setting objects from the ProcessInfo parameters
 	 * and extracts the document language.
-	 * 
+	 * @param processParameter -> Process Parameters hash contains the parameters set by the user in  the parameters dialog.
 	 * @param parameterPI
 	 * @return
 	 */
-	private Language initPrinterSettings(Properties ctx, Map<String, Object> parameterPI) {
+	private Language initPrinterSettings(Properties ctx, Map<String, Object> parameterPI, Map<String, Object> processParameter) {
 		// read some values from environment like my print format etc.
 		Language currLang = Env.getLanguage(ctx);
+		if ((processParameter.containsKey("AD_Language") && processParameter.get("AD_Language") != null) || 
+    			(processParameter.containsKey("CURRENT_LANG") && processParameter.get("CURRENT_LANG") != null)) {
+    		String langInfo = processParameter.get("AD_Language") != null ? processParameter.get("AD_Language").toString() : 
+    			processParameter.get("CURRENT_LANG").toString();
+    		currLang = Language.getLanguage(langInfo);
+    	}
 		m_printerName = (String) parameterPI.get(ServerReportCtl.PARAM_PRINTER_NAME);
 		m_printFormat = (MPrintFormat) parameterPI.get(ServerReportCtl.PARAM_PRINT_FORMAT);
 		m_printInfo = (PrintInfo) parameterPI.get(ServerReportCtl.PARAM_PRINT_INFO);
