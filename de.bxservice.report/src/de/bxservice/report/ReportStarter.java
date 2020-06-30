@@ -545,10 +545,10 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 		params.putAll(parameterP);
 		params.putAll(parameterPI);
 		params.put(JCTX_SUBREPORT_DIR, "");
-		params.put(JCTX_AD_PINSTANCE_ID, new Integer(pi.getAD_PInstance_ID()));
-		params.put(JCTX_AD_CLIENT_ID, new Integer(Env.getAD_Client_ID(ctx)));
-		params.put(JCTX_AD_ROLE_ID, new Integer(Env.getAD_Role_ID(ctx)));
-		params.put(JCTX_AD_USER_ID, new Integer(Env.getAD_User_ID(ctx)));
+		params.put(JCTX_AD_PINSTANCE_ID, pi.getAD_PInstance_ID());
+		params.put(JCTX_AD_CLIENT_ID, Env.getAD_Client_ID(ctx));
+		params.put(JCTX_AD_ROLE_ID, Env.getAD_Role_ID(ctx));
+		params.put(JCTX_AD_USER_ID, Env.getAD_User_ID(ctx));
 
 		currLang = initPrinterSettings(ctx, parameterPI);
 		// Locale object (JasperReports standard e.g. to access ResourceBundles)
@@ -691,7 +691,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 		Map<String, Object> params = new HashMap<String, Object>();
 
 		if (pi.getRecord_ID() > 0)
-			params.put(JCTX_RECORD_ID, new Integer(pi.getRecord_ID()));
+			params.put(JCTX_RECORD_ID, pi.getRecord_ID());
 
 		// IDEMPIERE-270, IDEMPIERE-1718 - inherit search filter from window /
 		// tbayen
