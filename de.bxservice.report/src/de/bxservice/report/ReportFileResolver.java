@@ -111,6 +111,11 @@ abstract public class ReportFileResolver implements FileResolver {
 	 * @return
 	 */
 	protected File loadFile(String path, String name, String suffix) {
+		if (! cacheDir.exists()) { // folders in tmp can be deleted for example by tmpreaper
+			cacheDir.mkdir();
+			cacheDir.deleteOnExit();
+		}
+
 		String fullSuffix = suffix != null ? "." + suffix : "";
 		File cacheFile = new File(cacheDir + "/" /*+ path*/ + name + fullSuffix);
 
