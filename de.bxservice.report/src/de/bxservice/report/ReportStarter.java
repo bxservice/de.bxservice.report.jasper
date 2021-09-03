@@ -261,6 +261,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 			Object rowCount = filler.getVariableValue(JRVariable.REPORT_COUNT);
 
 			// use the right way to output the report
+			PrintInfo pinfo = m_printInfo != null ? m_printInfo : new PrintInfo(pi);
 			if (pi.isExport()) {
 				buildReportExport(pi, jasperContext, jasperPrint);
 			} else if (pi.isBatch()) {
@@ -268,7 +269,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 			} else if (!isDirectPrint) {
 				// view the report
 				JRViewerProvider viewerLauncher = Service.locator().locate(JRViewerProvider.class).getService();
-				viewerLauncher.openViewer(jasperPrint, pi.getTitle());
+				viewerLauncher.openViewer(jasperPrint, pi.getTitle(), pinfo);
 
 				// create pdf for archive
 				// TODO check if this is really needed
@@ -279,7 +280,6 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 			// if PDF format as created we possibly want to archive that
 			File pdfFile = pi.getPDFReport();
 			if (pdfFile != null) {
-				PrintInfo pinfo = m_printInfo != null ? m_printInfo : new PrintInfo(pi);
 				ArchiveEngine.get().archive(pdfFile, pinfo);
 			}
 			/*
