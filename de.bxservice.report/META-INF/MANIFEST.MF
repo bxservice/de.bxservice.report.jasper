@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Automatic-Module-Name: de.bxservice.report
 Bundle-Name: Report
 Bundle-SymbolicName: de.bxservice.report;singleton:=true
 Bundle-Version: 1.0.1.qualifier

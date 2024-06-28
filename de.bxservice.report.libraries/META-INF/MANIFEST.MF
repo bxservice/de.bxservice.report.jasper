@@ -1,5 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
+Automatic-Module-Name: de.bxservice.report.libraries
 Bundle-Name: Libraries
 Bundle-SymbolicName: de.bxservice.report.libraries;singleton:=true
 Bundle-Version: 1.0.0.qualifier
@@ -65,4 +66,4 @@ Bundle-ClassPath: lib/ant-1.7.1.jar,
  lib/xml-apis.jar,
  .,
  lib/xmlbeans-2.5.0.jar
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
