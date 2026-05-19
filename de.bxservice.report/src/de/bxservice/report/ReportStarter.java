@@ -232,7 +232,7 @@ public class ReportStarter implements ProcessCall, ClientProcess {
 
 		JasperReport jasperReport;
 
-		Connection conn = DB.getConnectionRO();
+		Connection conn = DB.getReportingConnectionRO();
 		try {
 			jasperReport = (JasperReport) JRLoader.loadObjectFromFile(jasperFile.getAbsolutePath());
 			

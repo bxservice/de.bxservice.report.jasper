@@ -73,7 +73,7 @@ public class ReportFileResolverImage extends ReportFileResolver {
 			String suffix) {
 		if (name == null || !name.startsWith(AD_IMAGE_PREFIX))
 			return null;
-		int AD_Image_ID = new Integer(name.substring(AD_IMAGE_PREFIX.length()));
+		int AD_Image_ID = Integer.valueOf(name.substring(AD_IMAGE_PREFIX.length()));
 		MImage image = new Query(Env.getCtx(), MImage.Table_Name,
 				MImage.COLUMNNAME_AD_Image_ID + "=? ", null).setParameters(
 				AD_Image_ID).firstOnly();
